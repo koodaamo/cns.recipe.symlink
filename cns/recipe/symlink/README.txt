@@ -1,61 +1,33 @@
-Supported options
-=================
+**Simple recipe for creating symbolic links.**
 
-The recipe supports the following options:
+Supported options:
 
-.. Note to recipe author!
-   ----------------------
-   For each option the recipe uses you should include a description
-   about the purpose of the option, the format and semantics of the
-   values it accepts, whether it is mandatory or optional and what the
-   default value is if it is omitted.
+ - *symlink* contains one or more values in format source=target
+ - *symlink_base* may contain a common (source) base directory for symlinking, to simplify *symlink* parameter when there are many items from the same directory.
+ - *symlink_target* may contain common target directory, to simplify *symlink* parameter when targets (links) are to be created in the same directory. In this case *symlink* can be in format: source= (thus omitting the target part).
 
-option1
-    Description for ``option1``...
+Note: If only *symlink_base* & *symlink_target* are specified, links are created for all items found in the (source) base directory.
 
-option2
-    Description for ``option2``...
+Example 1::
 
+ [symlinks]
+ symlink = ~/work/MyProj = ${buildout:directory}/products
 
-Example usage
-=============
+Example 2::
 
-.. Note to recipe author!
-   ----------------------
-   zc.buildout provides a nice testing environment which makes it
-   relatively easy to write doctests that both demonstrate the use of
-   the recipe and test it.
-   You can find examples of recipe doctests from the PyPI, e.g.
-   
-     http://pypi.python.org/pypi/zc.recipe.egg
+ [symlinks]
+ symlink = MyProj
+           MyOtherProj
+           MyThirdProj
+ symlink_base = ~/work/
+ symlink_target = ${buildout:directory}/products
 
-   The PyPI page for zc.buildout contains documentation about the test
-   environment.
+Example 3::
 
-     http://pypi.python.org/pypi/zc.buildout#testing-support
-
-   Below is a skeleton doctest that you can start with when building
-   your own tests.
-
-We'll start by creating a buildout that uses the recipe::
-
-    >>> write('buildout.cfg',
-    ... """
-    ... [buildout]
-    ... parts = test1
-    ...
-    ... [test1]
-    ... recipe = cns.recipe.symlink
-    ... option1 = %(foo)s
-    ... option2 = %(bar)s
-    ... """ % { 'foo' : 'value1', 'bar' : 'value2'})
-
-Running the buildout gives us::
-
-    >>> print 'start', system(buildout) 
-    start...
-    Installing test1.
-    Unused options for test1: 'option2' 'option1'.
-    <BLANKLINE>
-
+ [symlinks]
+ symlink = MyProj
+           MyOtherProj
+           ${buildout:directory}/var/fss-files=${instance1:location}/var
+ symlink_base = ~/work/
+ symlink_target = ${buildout:directory}/products
 

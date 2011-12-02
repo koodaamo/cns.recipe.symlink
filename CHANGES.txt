@@ -1,5 +1,12 @@
-1.0 (xxxx-xx-xx)
+0.2 (2011-12-02)
 ----------------
 
-- Created recipe with ZopeSkel
-  [""]
+- New feature for bulk creation of links
+- Repackaged based on ZopeSkel recipe
+- Minor doc improvements
+- Source now on github
+
+0.1
+-----------------
+
+- Initial release
