@@ -71,4 +71,4 @@ class Recipe:
 
     def update(self):
        "Implement recipe API. Just call install for lack of better job."
-       return self.install(self)
+       return self.install()
