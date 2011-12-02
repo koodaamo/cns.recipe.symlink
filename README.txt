@@ -6,7 +6,11 @@ Supported options:
  - *symlink_base* may contain a common (source) base directory for symlinking, to simplify *symlink* parameter when there are many items from the same directory.
  - *symlink_target* may contain common target directory, to simplify *symlink* parameter when targets (links) are to be created in the same directory. In this case *symlink* can be in format: source= (thus omitting the target part).
 
-Note: If only *symlink_base* & *symlink_target* are specified, links are created for all items found in the (source) base directory.
+If only *symlink_base* & *symlink_target* are specified, links are created for all items found in the (source) base directory.
+In this case, also the following option can be used:
+
+ - *ignore* contains one or more wildcard expressions for choosing items that will be ignored
+
 
 Example 1::
 
@@ -30,3 +34,13 @@ Example 3::
            ${buildout:directory}/var/fss-files=${instance1:location}/var
  symlink_base = ~/work/
  symlink_target = ${buildout:directory}/products
+
+Example 4::
+
+ [symlinks]
+ symlink_base = ~/work/
+ symlink_target = ${buildout:directory}/products
+ ignore = \*.pyc
+          \*.o
+
+

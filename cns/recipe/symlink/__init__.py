@@ -4,6 +4,8 @@
 import logging
 import os
 import sys
+import fnmatch
+import itertools
 
 class Recipe:
     def __init__(self, buildout, name, options):
@@ -18,6 +20,7 @@ class Recipe:
         source = self.options.get('symlink')
         symlink_base= self.options.get('symlink_base')
         starget = self.options.get('symlink_target')
+        ignored = self.options.get('ignore')
 
         if symlink_base is not None:
             symlink_base = os.path.expanduser(symlink_base)
@@ -34,9 +37,15 @@ class Recipe:
             err = "Please provide a symlink or both symlink_base & symlink_target"
             raise RuntimeError(err)
 
+        check = lambda fname: True
+        if ignored:
+            ignores = ignored.split("\n")
+            # check whether an item should be ignored
+            check = lambda fname: True not in [fnmatch.fnmatch(fname, expr) for expr in ignores]
+       
         result = []
 
-        for item in items:
+        for item in itertools.ifilter(check, items):
             if item:
                 # item is : source=target
                 parts = item.split('=')
