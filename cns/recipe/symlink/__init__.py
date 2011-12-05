@@ -7,46 +7,88 @@ import sys
 import fnmatch
 import itertools
 
+
 class Recipe:
     def __init__(self, buildout, name, options):
+
         self.options = options
         self.logger = logging.getLogger(name)
+        self.buildout = buildout
 
 
     def install(self):
         "implement recipe API"
+
         if sys.platform.startswith('win'):
             raise RuntimeError('Symlinks are not supported on Windows.')
-        source = self.options.get('symlink')
-        symlink_base= self.options.get('symlink_base')
-        starget = self.options.get('symlink_target')
-        ignored = self.options.get('ignore')
 
-        if symlink_base is not None:
+
+        #shortcuts
+        buildout = self.buildout["buildout"]
+        options = self.options
+
+        # buildout options
+        source = options.get('symlink')
+        symlink_base= options.get('symlink_base')
+        starget = options.get('symlink_target')
+        ignored = options.get('ignore')
+        autocreate = options.get('autocreate')
+        bulk = options.get("bulk")
+        eggs = options.get("eggs")
+        develop = options.get("develop")
+
+        # check source base and target
+        if symlink_base:
             symlink_base = os.path.expanduser(symlink_base)
-        if starget is not None:
+            if not os.path.isdir(symlink_base):
+               raise RuntimeError("Source directory %s does not exist." % symlink_base)
+
+
+        bulkitems = []
+        if starget:
             starget = os.path.expanduser(starget)
+            if not os.path.isdir(starget):
+               self.logger.debug("Target dir %s does not exist." % starget)
+               if autocreate:
+                  os.makedirs(starget)
+               else:
+                  raise RuntimeError("Target directory %s does not exist." % starget)
 
-        # just base and target are given
-        if source is None and (symlink_base and starget):
-            items = os.listdir(symlink_base)
+            # target is specified, so there might be bulk items
 
-        elif source is not None:
-            items = source.split('\n')
-        else:
-            err = "Please provide a symlink or both symlink_base & symlink_target"
-            raise RuntimeError(err)
+            if eggs:
+               eggdir = buildout["eggs-directory"]
+               eggnames = os.listdir(eggdir)
+               bulkitems += [eggdir + os.sep + n for n in eggnames if n]
 
-        check = lambda fname: True
-        if ignored:
-            ignores = ignored.split("\n")
-            # check whether an item should be ignored
-            check = lambda fname: True not in [fnmatch.fnmatch(fname, expr) for expr in ignores]
-       
-        result = []
+            if develop:
+               try:
+                  srcdirs = buildout["develop"].split("\n")
+                  bulkitems += [buildout["directory"] + os.sep + dir for dir in srcdirs if dir]
+               except:
+                  pass
 
-        for item in itertools.ifilter(check, items):
-            if item:
+            if symlink_base and starget and (not source or bulk):
+                items = os.listdir(symlink_base)
+                bulkitems += [symlink_base + os.sep + item for item in items]
+
+            # remove those that are to be ignored
+            lastpart = lambda bi: bi[bi.rfind(os.sep)+1:]
+
+            if ignored:
+                ignores = [i for i in ignored.split("\n") if i]
+                # check whether an item should be ignored
+                check = lambda fpath: True not in [fnmatch.fnmatch(lastpart(fpath), expr) for expr in ignores]
+                bulkitems = itertools.ifilter(check, bulkitems)
+
+            bulkitems = [(bi, starget + os.sep + lastpart(bi)) for bi in bulkitems]
+            #self.logger.debug("bulk: %s" % bulkitems)
+
+
+        sourceitems = []
+        if source:
+            items = [item for item in source.split('\n') if item]
+            for item in items:
                 # item is : source=target
                 parts = item.split('=')
                 if len(parts) == 1:
@@ -60,24 +102,38 @@ class Recipe:
                         target = starget
                 # expand ~ variable
                 source = os.path.expanduser(source)
+
                 # check if apply symlink base to this entry
                 if symlink_base and (os.path.abspath(source) != source):
                     source = os.path.join(symlink_base, source)
                     if os.path.isdir(target):
                         # take last part of source and append it to target
                         target = os.path.join(target, os.path.split(source)[-1])
-                if os.path.isfile(target) or os.path.islink(target) :
-                    self.logger.debug('Symlink target %s already exists' % target)
-                    result.append(target)
-                elif not os.path.exists(source):
-                    self.logger.warning('Symlink source not found! %s' % source)
-                else:
-                    os.symlink(source, target)
-                    result.append(target)
 
+                sourceitems.append((source, target))
+
+            #self.logger.debug("individually specified: %s" % sourceitems)
+
+        elif not starget and (symlink_base or eggs or develop):
+            raise RuntimeError("Provide at least 'symlink', or 'symlink_target'" \
+                               " with either 'symlink_base', 'eggs' or 'develop'")
+
+        result = []
+        # remove duplicates by turning the tuple list into a set
+        for source, target in set(bulkitems + sourceitems):
+            if os.path.isfile(target) or os.path.islink(target) :
+                self.logger.debug('Symlink target %s already exists' % target)
+                result.append(target)
+            elif not os.path.exists(source):
+                self.logger.warning('Symlink source not found! %s' % source)
+            else:
+                os.symlink(source, target)
+                self.logger.debug("creating link for %s at %s" % (source, target))
+                result.append(target)
+        self.logger.debug(result)
         return result
 
 
-    def update(self):
-       "Implement recipe API. Just call install for lack of better job."
-       return self.install()
+#    def update(self):
+#       "Implement recipe API. Just call install for lack of better job."
+#       return self.install()
