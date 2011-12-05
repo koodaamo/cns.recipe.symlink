@@ -82,7 +82,6 @@ class Recipe:
                 bulkitems = itertools.ifilter(check, bulkitems)
 
             bulkitems = [(bi, starget + os.sep + lastpart(bi)) for bi in bulkitems]
-            #self.logger.debug("bulk: %s" % bulkitems)
 
 
         sourceitems = []
@@ -112,7 +111,6 @@ class Recipe:
 
                 sourceitems.append((source, target))
 
-            #self.logger.debug("individually specified: %s" % sourceitems)
 
         elif not starget and (symlink_base or eggs or develop):
             raise RuntimeError("Provide at least 'symlink', or 'symlink_target'" \
