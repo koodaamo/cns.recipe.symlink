@@ -13,17 +13,17 @@ on how to work around zc.buildout bug #144228. Otherwise your buildout will fail
 Common options
 ===================
 
- - *symlink_base* option may contain a common (source) base directory for symlinking,
+- *symlink_base* option may contain a common (source) base directory for symlinking,
    when links are created for many items from the same directory.
- - *symlink_target* may contain common target directory, when links are created in the
+- *symlink_target* may contain common target directory, when links are created in the
    same directory.
- - *autocreate* causes a target directory to be created if it does not exist
+- *autocreate* causes a target directory to be created if it does not exist
 
 
 Specifying individual links
 =============================
 
- - *symlink* option contains one or more values in format source=target
+- *symlink* option contains one or more values in format source=target
 
 Example 1::
 
@@ -43,7 +43,7 @@ in directory given by *symlink_target*.
 
 There's also a special option to constrain bulk link creation:
 
- - *ignore* option contains one or more wildcard expressions for choosing items that will
+- *ignore* option contains one or more wildcard expressions for choosing items that will
    be ignored, ie. no links will be created for them
 
 
@@ -69,8 +69,8 @@ For eggs in buildout
 
 There are two options to generate symlinks for eggs downloaded to a buildout.
 
- - *eggs*
- - *develop*
+- *eggs*
+- *develop*
 
 The *ignore option* can be used here as well.
 

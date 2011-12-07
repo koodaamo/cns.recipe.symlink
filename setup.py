@@ -34,7 +34,7 @@ tests_require = ['zope.testing', 'zc.buildout']
 
 setup(name='cns.recipe.symlink',
       version=version,
-      description="",
+      description="Buildout recipe to create symlinks",
       long_description=long_description,
       # Get more strings from
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
