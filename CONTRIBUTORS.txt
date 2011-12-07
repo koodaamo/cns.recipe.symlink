@@ -1,2 +1,2 @@
-Radim Novotny "radim.novotny@corenet.cz", Original author
-Petri Savolainen "petri.savolainen@koodaamo.fi", Contributor
+Radim Novotny, original author
+Petri Savolainen, contributor

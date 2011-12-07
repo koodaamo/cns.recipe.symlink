@@ -12,23 +12,20 @@ def read(*rnames):
 version = '0.2.3'
 
 long_description = (
-    'Detailed Documentation\n'
-    '**********************\n'
-    + '\n' +
     read('README.txt')
     + '\n' +
     'Contributors\n'
-    '************\n'
+    '==============\n'
     + '\n' +
     read('CONTRIBUTORS.txt')
     + '\n' +
     'Change history\n'
-    '**************\n'
+    '================\n'
     + '\n' +
     read('CHANGES.txt')
     + '\n' +
    'Download\n'
-    '********\n')
+    '==========\n')
 
 entry_point = 'cns.recipe.symlink:Recipe'
 entry_points = {"zc.buildout": ["default = %s" % entry_point]}
