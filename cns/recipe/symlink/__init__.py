@@ -68,7 +68,7 @@ class Recipe:
                except:
                   pass
 
-            if symlink_base and starget and (not source or bulk):
+            if symlink_base and (not source or bulk):
                 items = os.listdir(symlink_base)
                 bulkitems += [symlink_base + os.sep + item for item in items]
 
