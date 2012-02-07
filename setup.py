@@ -30,7 +30,7 @@ long_description = (
 entry_point = 'cns.recipe.symlink:Recipe'
 entry_points = {"zc.buildout": ["default = %s" % entry_point]}
 
-tests_require = ['zope.testing', 'zc.buildout']
+tests_require = ['zope.testing', 'interlude']
 
 setup(name='cns.recipe.symlink',
       version=version,
@@ -53,8 +53,7 @@ setup(name='cns.recipe.symlink',
       namespace_packages=['cns', 'cns.recipe'],
       include_package_data=True,
       zip_safe=False,
-      install_requires=['setuptools',
-                        'zc.buildout'
+      install_requires=["setuptools", "zc.buildout",
                         # -*- Extra requirements: -*-
                         ],
       tests_require=tests_require,

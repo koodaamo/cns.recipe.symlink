@@ -4,9 +4,10 @@ Doctest runner for 'cns.recipe.symlink'.
 """
 __docformat__ = 'restructuredtext'
 
-import unittest, doctest
+import os, unittest, doctest
 import zc.buildout.tests
 import zc.buildout.testing
+import interlude
 
 from zope.testing import renormalizing
 
@@ -19,28 +20,24 @@ def setUp(test):
 
     # Install the recipe in develop mode
     zc.buildout.testing.install_develop('cns.recipe.symlink', test)
-
     # Install any other recipes that should be available in the tests
-    #zc.buildout.testing.install('collective.recipe.foobar', test)
 
 def test_suite():
     suite = unittest.TestSuite((
             doctest.DocFileSuite(
-                '../README.txt',
+                'README.txt',
                 setUp=setUp,
                 tearDown=zc.buildout.testing.buildoutTearDown,
                 optionflags=optionflags,
+                globs = dict(interact=interlude.interact),
                 checker=renormalizing.RENormalizing([
-                        # If want to clean up the doctest output you
-                        # can register additional regexp normalizers
-                        # here. The format is a two-tuple with the RE
-                        # as the first item and the replacement as the
-                        # second item, e.g.
-                        # (re.compile('my-[rR]eg[eE]ps'), 'my-regexps')
                         zc.buildout.testing.normalize_path,
-                        ]),
-                ),
-            ))
+                        zc.buildout.testing.normalize_endings,
+                        zc.buildout.tests.hide_distribute_additions,
+                        zc.buildout.tests.hide_zip_safe_message,
+                ]),
+            ),
+        ))
     return suite
 
 if __name__ == '__main__':

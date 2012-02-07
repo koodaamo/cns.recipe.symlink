@@ -6,7 +6,7 @@ links will be created, giving us paths like this:
 /sources/my_dir/my_file2.txt
 /destinations/
 
-Note that this is rooted at a temporary directory, not system root.
+These are rooted at a temporary directory, not system root:
 
 >>> sources = tmpdir("sources")
 >>> mkdir(sources, "my_dir")
@@ -14,8 +14,7 @@ Note that this is rooted at a temporary directory, not system root.
 >>> write(sources, "my_dir", "my_file2.txt", "This is empty file.")
 >>> destinations = tmpdir("destinations")
 
-Then, let's create our simple buildout.cfg file with a simple
-link:
+So, let's create our simple buildout.cfg file with a simple link:
 
 >>> write(sample_buildout, 'buildout.cfg', """
 ... [buildout]
@@ -23,14 +22,16 @@ link:
 ... [symlink]
 ... recipe = cns.recipe.symlink
 ... symlink = %s/my_dir/my_file.txt = %s/my_file.txt""" % (sources, destinations))
->>>
+
+Run buildout & see what happens:
+
 >>> system(buildout + " -N")
 'Installing symlink.\n'
 
 >>> import os; os.path.islink(destinations + os.sep + "my_file.txt") 
 True
 
-Try symlink_base & symlink_target shortcuts:
+Next, try symlink_base & symlink_target shortcuts:
 
 >>> write(sample_buildout, 'buildout.cfg', """
 ... [buildout]
@@ -40,14 +41,16 @@ Try symlink_base & symlink_target shortcuts:
 ... symlink_base = %s/my_dir/
 ... symlink_target = %s
 ... symlink = my_file.txt""" % (sources, destinations))
->>>
+
+Run buildout again:
+
 >>> system(buildout + " -N")
 'Uninstalling symlink.\nInstalling symlink.\n'
 
 >>> os.path.islink(destinations + os.sep + "my_file.txt")
 True
 
-Same, but in bulk:
+Fine. Try same as above, but in bulk:
 
 >>> write(sample_buildout, 'buildout.cfg', """
 ... [buildout]
@@ -57,11 +60,38 @@ Same, but in bulk:
 ... symlink_base = %s/my_dir/
 ... symlink_target = %s
 ... bulk = true""" % (sources, destinations))
->>>
+
+Buildout:
+
 >>> system(buildout + " -N")
 'Uninstalling symlink.\nInstalling symlink.\n'
 
 >>> os.path.islink(destinations + os.sep + "my_file.txt")
 True
+
 >>> os.path.islink(destinations + os.sep + "my_file2.txt")
 True
+
+Try linking the eggs:
+
+>>> write(sample_buildout, 'buildout.cfg', """
+... [buildout]
+... parts = 
+...    symlink
+...
+... [symlink]
+... recipe = cns.recipe.symlink
+... eggs = true
+... symlink_target = %s""" % destinations)
+
+Buildout:
+
+>>> system(buildout + " -N")
+'Uninstalling symlink.\nInstalling symlink.\n'
+>>> egglinks = os.listdir(destinations)
+>>> for e in egglinks:
+...    os.path.islink(join(destinations, e)) and \
+...    (e.startswith("setuptools") or e.startswith("zc.buildout"))
+True
+True
+
